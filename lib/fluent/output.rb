@@ -99,10 +99,13 @@ module Fluent
     end
 
     def submit_flush
-      @mutex.synchronize {
-        @next_time = 0
-        @cond.signal
-      }
+      Thread.new do
+        @mutex.synchronize {
+          @next_time = 0
+          @cond.signal
+        }
+      end
+
       Thread.pass
     end
 
