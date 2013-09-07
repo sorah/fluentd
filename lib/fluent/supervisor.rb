@@ -359,11 +359,25 @@ module Fluent
         $log.debug "fluentd main process get SIGHUP"
       end
 
+      flushing_thread = Thread.new do
+        loop do
+          $log.debug "flushing thread: sleeping"
+          Thread.stop
+
+          $log.debug "flushing thread woke up: flushing buffered events"
+          begin
+            Fluent::Engine.flush!
+          rescue Exception => e
+            $log.warn "flushing thread error: #{e}"
+          end
+        end
+      end
+
       trap :USR1 do
         $log.debug "fluentd main process get SIGUSR1"
         $log.info "force flushing buffered events"
         @log.reopen!
-        Fluent::Engine.flush!
+        flushing_thread.run
       end
     end
 
