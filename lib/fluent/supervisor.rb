@@ -368,9 +368,7 @@ module Fluent
     end
 
     def run_engine
-      Thread.new {
-        Fluent::Engine.run
-      }.join
+      Fluent::Engine.run
     end
   end
 end
